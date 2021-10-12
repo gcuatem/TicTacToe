@@ -1,0 +1,53 @@
+﻿@using TicTacToe.Models;
+@page "/game"
+
+@if (newGame != null)
+{
+  <div class="row">
+    <div class="col-lg-3 col6">
+      <div> 
+        <h3>Next turn: @newGame.NextTurn </h3>
+        <p> Available Plays:@newGame.RemainingPlays</p>
+      </div>
+    </div>
+  </div>
+  <div class="game">
+   
+    @if (newGame.Winner.HasValue)
+    {
+      <h3>The Winner is <span class="oi oi-star" aria-hidden="true"></span> @newGame.Winner </h3>
+    }
+    @for (int i = 1; i <= 3; i++)
+    {
+      @for (int j = 1; j <= 3; j++)
+      {
+        var square = newGame.Squares[((((i - 1) * 3) + j) - 1)];
+        <SquareComponent Square="@square" ClickParameter="@(e=>SquareClick(e,square))"></SquareComponent>
+      }
+    }
+  </div>
+}
+
+@code {
+  public Game newGame { get; set; }
+  protected override async Task OnInitializedAsync()
+  {
+    newGame = new Game();
+    await base.OnInitializedAsync();
+  }
+
+  public void SquareClick(MouseEventArgs mouseEventArgs, Square square)
+  {
+    if (square.Mark.HasValue || newGame.RemainingPlays <= 0)
+    {
+      return;
+    }
+    if (!newGame.Winner.HasValue)
+    {
+
+      square.Mark = newGame.NextTurn;
+      newGame.Next();
+      StateHasChanged();
+    }
+  }
+}
